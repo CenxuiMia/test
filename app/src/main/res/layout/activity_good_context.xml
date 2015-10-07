@@ -1,0 +1,147 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.softmobile.hkscloud.GoodContextActivity">
+
+    <TextView android:text="Shop Name" android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvShopName"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ffffff"
+        android:background="#cc1c36" />
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:id="@+id/viewMap"
+        android:layout_alignEnd="@+id/tvShopName"
+        android:layout_alignRight="@+id/tvShopName"
+        android:background="#cc1c36"
+        android:src="@drawable/map" />
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnBack"
+        android:layout_below="@+id/tvShopName"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="45dp"
+        android:src="@drawable/back" />
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnNext"
+        android:layout_alignTop="@+id/btnBack"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/next" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/tvName"
+        android:layout_below="@+id/tvShopName"
+        android:layout_toRightOf="@+id/btnBack"
+        android:layout_toLeftOf="@+id/btnNext"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:textSize="18sp"
+        android:textColor="#cc1c36"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/tvDate"
+        android:layout_below="@+id/tvName"
+        android:layout_toRightOf="@+id/btnBack"
+        android:layout_toLeftOf="@+id/btnNext"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:textSize="14sp"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/event_web"
+        android:id="@+id/tvEventWeb"
+        android:layout_below="@+id/tvDate"
+        android:layout_marginTop="8dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="15sp"
+        android:background="#cc1c36"
+        android:textColor="#ffffff"
+        android:padding="5dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView"
+        android:layout_below="@+id/tvEventWeb"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/relativeDetail">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/event_detail"
+                android:id="@+id/tvGoodContext"
+                android:textColor="#cc1c36"
+                android:textSize="18sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hello_world"
+                android:id="@+id/tvDetail"
+                android:layout_below="@+id/tvGoodContext"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"/>
+
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvDetail"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"></LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvMention"
+                android:text="@string/event_note"
+                android:layout_below="@+id/linearLayout"
+                android:textColor="#cc1c36"
+                android:layout_marginTop="15dp"
+                android:textSize="18sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvNote"
+                android:text="@string/hello_world"
+                android:layout_below="@+id/tvMention"
+                android:layout_alignLeft="@+id/tvDetail"
+                android:layout_alignStart="@+id/tvDetail"
+                android:layout_marginTop="5dp"/>
+
+        </RelativeLayout>
+    </ScrollView>
+
+
+</RelativeLayout>

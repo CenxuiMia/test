@@ -1,0 +1,109 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.softmobile.hkscloud.MapActivity">
+
+    <TextView android:text="Shop Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvMapShopName"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ffffff"
+        android:background="#cc1c36"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:padding="5dp"/>
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/imgviewPhone"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tvMapShopName"
+        android:src="@drawable/phone"
+        android:layout_marginTop="3dp"/>
+
+    <TextView android:text="Shop Phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvMapPhone"
+        android:textColor="#cc1c36"
+        android:layout_below="@+id/tvMapShopName"
+        android:layout_toRightOf="@+id/imgviewPhone"
+        android:layout_marginTop="5dp"
+        android:padding="5dp"/>
+
+    <ImageButton
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:id="@+id/btnDial"
+        android:layout_below="@+id/tvMapShopName"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/next"
+        />
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="22dp"
+        android:id="@+id/imgviewMarker"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tvMapPhone"
+        android:src="@drawable/markerred"
+        android:layout_marginTop="8dp"/>
+
+    <TextView android:text="Shop Address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvMapAddress"
+        android:textColor="#cc1c36"
+        android:layout_below="@+id/tvMapPhone"
+        android:layout_toRightOf="@+id/imgviewMarker"
+        android:layout_marginTop="5dp"
+        android:padding="5dp"/>
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/map"
+        tools:context=".MapActivity"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tvMapAddress"
+        android:layout_marginTop="5dp"/>
+
+    <ImageView
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:id="@+id/imgviewShop"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/shop" />
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="40dp"
+        android:id="@+id/imgbtnBack"
+        android:layout_alignBottom="@+id/imgviewShop"
+        android:layout_toLeftOf="@+id/imgviewShop"
+        android:layout_toStartOf="@+id/imgviewShop"
+        android:src="@drawable/back" />
+
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="40dp"
+        android:id="@+id/imgbtnNext"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/imgviewShop"
+        android:layout_toEndOf="@+id/imgviewShop"
+        android:src="@drawable/next" />
+
+</RelativeLayout>
