@@ -12,13 +12,13 @@ import android.widget.TextView;
 import com.softmobile.mialibrary.activity.StartIntent;
 import com.softmobile.mialibrary.view.ListViewAdapter;
 
-import HksData.SingletonData;
+import HksData.DataBase;
 
 public class EventListActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
 
-    private SAdapter mAdapter;
-    private TextView m_tvShopName;
-    private TextView m_tvShopAddr;
+    private SAdapter m_adapter    = null;
+    private TextView m_tvShopName = null;
+    private TextView m_tvShopAddr = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,41 +30,39 @@ public class EventListActivity extends AppCompatActivity implements AdapterView.
     @Override
     protected void onResume() {
         super.onResume();
-        mAdapter.notifyDataSetChanged();
+        m_adapter.notifyDataSetChanged();
         refreshView();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        SingletonData.getInstance().setCurrentEvent(position);
+        DataBase.getInstance().setCurrentEvent(position);
         StartIntent.openActivity(this,GoodContextActivity.class);
     }
 
     private class SAdapter extends ListViewAdapter {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-            View view =
-                    LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.adapter_layout2,null);
+            View view = LayoutInflater.from(viewGroup.getContext())
+                                      .inflate(R.layout.adapter_layout2,null);
             return new SViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int position) {
-            ((SViewHolder)viewHolder).textView.setText(SingletonData.getInstance()
-                    .getCurrentShop().getEvent(position)
-                    .getName());
+            ((SViewHolder)viewHolder).textView.setText(DataBase.getInstance()
+                                                       .getCurrentShop().getEvent(position)
+                                                       .getName());
         }
 
         @Override
         public int getItemCount() {
-            return SingletonData.getInstance()
-                    .getCurrentShop()
-                    .getEventLength();
+            return DataBase.getInstance().getCurrentShop().getEventLength();
         }
 
-        //is also compatible with recyclerView
+        //compatible with recyclerView
         class SViewHolder extends ViewHolder {
-            TextView textView;
+            TextView textView = null;
             public SViewHolder(View v) {
                 super(v);//設定子view
                 textView = (TextView)v.findViewById(R.id.textView2);
@@ -73,22 +71,18 @@ public class EventListActivity extends AppCompatActivity implements AdapterView.
     }
 
     private void setView() {
-        ListView listView = (ListView) findViewById(R.id.listView);
-        mAdapter = new SAdapter();
-        listView.setAdapter(mAdapter);
+        ListView listView = (ListView)findViewById(R.id.listView);
+        m_adapter = new SAdapter();
+        listView.setAdapter(m_adapter);
         listView.setOnItemClickListener(this);
-        m_tvShopName = (TextView) findViewById(R.id.tvShpName);
-
-        m_tvShopAddr = (TextView) findViewById(R.id.tvShopAddr);
+        m_tvShopName = (TextView)findViewById(R.id.tvShpName);
+        m_tvShopAddr = (TextView)findViewById(R.id.tvShopAddr);
 
     }
 
+    //reset
     private void refreshView() {
-        m_tvShopName.setText(SingletonData.getInstance()
-                .getCurrentShop()
-                .getName());
-        m_tvShopAddr.setText(SingletonData.getInstance()
-                .getCurrentShop()
-                .getAddress());
+        m_tvShopName.setText(DataBase.getInstance().getCurrentShop().getName());
+        m_tvShopAddr.setText(DataBase.getInstance().getCurrentShop().getAddress());
     }
 }

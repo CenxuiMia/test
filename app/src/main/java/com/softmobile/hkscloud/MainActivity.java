@@ -13,9 +13,12 @@ import com.softmobile.mialibrary.activity.StartIntent;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private long m_lExitTime      = 0;//關於按兩下離開
-
     static String DATA_GROUP_CODE = "dataGroupCode";//辨別intent需要的bundle的id
+    private static int WAIT_TIME  = 2000;
+    private static String ONE     = "01";
+    private static String SEVEN   = "07";
+
+    private long m_lExitTime      = 0;//關於按兩下離開
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,12 +55,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         switch (v.getId()){
             case R.id.btnNear:
-                bundle.putString(DATA_GROUP_CODE,"01");
+                bundle.putString(DATA_GROUP_CODE,ONE);
                 break;
             case R.id.btnCredit:
-                bundle.putString(DATA_GROUP_CODE,"07");
+                bundle.putString(DATA_GROUP_CODE,SEVEN);
                 break;
         }
+
         StartIntent.openActivity(this,ShopListActivity.class,bundle);
     }
 
@@ -79,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          */
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             //record to exit when next press
-            if ((System.currentTimeMillis()-m_lExitTime)>2000) {
+            if ((System.currentTimeMillis()-m_lExitTime)>WAIT_TIME) {
                 Toast.makeText(MainActivity.this, R.string.ask, Toast.LENGTH_SHORT).show();
                 m_lExitTime = System.currentTimeMillis();
             } else {

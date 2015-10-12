@@ -7,7 +7,7 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-import HksData.SingletonData;
+import HksData.DataBase;
 
 public class CouponActivity extends AppCompatActivity {
 
@@ -42,8 +42,8 @@ public class CouponActivity extends AppCompatActivity {
 
     private void setView() {
         TextView tvShopName = (TextView)findViewById(R.id.tvShopName);
-        tvShopName.setText(SingletonData.getInstance().getCurrentShop().getName());
+        tvShopName.setText(DataBase.getInstance().getCurrentShop().getName());
         WebView webView = (WebView) findViewById(R.id.wvCoupon);
-        webView.loadUrl(SingletonData.getInstance().getCurrentCoupon().getURL());
+        webView.loadUrl(DataBase.getInstance().getCurrentCoupon().getURL());
     }
 }

@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +18,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,29 +32,36 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import HksData.SingletonData;
+import HksData.DataBase;
 
 public class ShopListActivity extends AppCompatActivity implements LocationListener,
                                                                    AbsListView.OnScrollListener,
                                                                    AdapterView.OnItemClickListener {
+    private static final String BRANCH     = "branch";
+    private static final String APPID      = "119871";
+    private static final String ANDROID    = "ANDROID";
+    private static final int LIMIT         = 30;
+    private static final int TWENTY        = 20;
+    private static final long MINTIME      = 300;
+    private static final float MINDISTANCE = 1;
+    private static final double DEF_LON    = 121.564673;
+    private static final double DEF_LAT    = 25.033938;
+    private static final String KM         = "km";
+
     private ListViewAdapter m_ListViewAdapter = null;
     private int m_iDownload                   = 0; //滑動下載資料
     private boolean m_bIsDownload             = false;
-    private View m_viewLoading                = null;//progressBar
+    private ProgressBar m_pbLoading           = null;
     private String m_strGroupCode             = null;
-
-    private static final String BRANCH     = "branch";
-    private static final int LIMIT         = 30;
-    private static final long MINTIME      = 300;
-    private static final float MINDISTANCE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_list);
-        SingletonData.getInstance().clear();//資料清空
+        DataBase.getInstance().clear();//資料清空
         //抓上層資料
-        m_strGroupCode = StartIntent.getActivityIntentBundle(this).getString(MainActivity.DATA_GROUP_CODE);
+        m_strGroupCode = StartIntent.getActivityIntentBundle(this)
+                         .getString(MainActivity.DATA_GROUP_CODE);
         setView();
         getLocation();
     }
@@ -87,7 +96,7 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
             return;
         }
 
-        SingletonData.getInstance().setLocation(location);
+        DataBase.getInstance().setLocation(location);
         downloadData();
         LocationManager locationManager = SystemService.getLocationManager(this);
         locationManager.removeUpdates(this);
@@ -121,10 +130,11 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
             return;
         }
 
+        //沒資料
         if (totalItemCount == 0) return;
 
-        //滑動近底下載資料
-        if ((totalItemCount-firstVisibleItem)<20) {
+        //滑動剩20筆則下載資料
+        if ((totalItemCount-firstVisibleItem)<TWENTY) {
             downloadData();
         }
     }
@@ -137,11 +147,12 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        SingletonData.getInstance().setCurrentShop(position);
+        DataBase.getInstance().setCurrentShop(position);
 
-        if (SingletonData.getInstance().getCurrentShop().getEventLength() == 1) {
-            StartIntent.openActivity(this, GoodContextActivity.class);
-        }else {
+        //whether to open EventListActivity
+        if (DataBase.getInstance().getCurrentShop().getEventLength() == 1) {
+            StartIntent.openActivity(this,GoodContextActivity.class);
+        } else {
             StartIntent.openActivity(this,EventListActivity.class);
         }
     }
@@ -149,81 +160,91 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
     private class SAdapter extends ListViewAdapter {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.adapter_layout, null);
+            View view = LayoutInflater.from(viewGroup.getContext())
+                                      .inflate(R.layout.adapter_layout, null);
             return new SViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int position) {
-            ((SViewHolder)viewHolder).textView.setText(SingletonData.getInstance()
+            ((SViewHolder)viewHolder).tvName.setText(DataBase.getInstance()
                     .getShop(position).getName());
             ((SViewHolder)viewHolder).tvDistance.setText(getString(R.string.distance) +
-                    SingletonData.getInstance().getShop(position).getDistance() + "km");
+                    DataBase.getInstance().getShop(position).getDistance() + KM);
 
-            if (SingletonData.getInstance().getShop(position).getEventLength()==1){
-                ((SViewHolder)viewHolder).tvSub.setText(SingletonData.getInstance()
+            //set eventName in ListView
+            if (DataBase.getInstance().getShop(position).getEventLength()==1){
+                ((SViewHolder)viewHolder).tvSub.setText(DataBase.getInstance()
                         .getShop(position).getEvent(0).getName());
-            }else if (SingletonData.getInstance().getShop(position).getEventLength()==2){
-                ((SViewHolder)viewHolder).tvSub.setText(SingletonData.getInstance()
-                        .getShop(position).getEvent(0).getName()+"|"+SingletonData.getInstance()
+            } else if (DataBase.getInstance().getShop(position).getEventLength()==2){
+                ((SViewHolder)viewHolder).tvSub.setText(DataBase.getInstance()
+                        .getShop(position).getEvent(0).getName()+"|"+ DataBase.getInstance()
                         .getShop(position).getEvent(1).getName());
-            }else {
-                ((SViewHolder)viewHolder).tvSub.setText(SingletonData.getInstance()
-                        .getShop(position).getEvent(0).getName()+"|"+SingletonData.getInstance()
-                        .getShop(position).getEvent(1).getName()+"|"+SingletonData.getInstance()
+            } else {
+                ((SViewHolder)viewHolder).tvSub.setText(DataBase.getInstance()
+                        .getShop(position).getEvent(0).getName()+"|"+ DataBase.getInstance()
+                        .getShop(position).getEvent(1).getName()+"|"+ DataBase.getInstance()
                         .getShop(position).getEvent(2).getName());
             }
 
-            for (int iShop=0;iShop<SingletonData.getInstance().getShopLength();iShop++) {
-
-                if (iShop%7==0) {
-                    ((SViewHolder)viewHolder).imgLogo.setImageResource(R.drawable.shop1);
-                }
-
-                if (iShop%7==1) {
-                    ((SViewHolder)viewHolder).imgLogo.setImageResource(R.drawable.shop2);
-                }
-
-                if (iShop%7==2) {
-                    ((SViewHolder)viewHolder).imgLogo.setImageResource(R.drawable.shop3);
-                }
-
-                if (iShop%7==3) {
-                    ((SViewHolder)viewHolder).imgLogo.setImageResource(R.drawable.shop4);
-                }
-
-                if (iShop%7==4) {
-                    ((SViewHolder)viewHolder).imgLogo.setImageResource(R.drawable.shop5);
-                }
-
-                if (iShop%7==5) {
-                    ((SViewHolder)viewHolder).imgLogo.setImageResource(R.drawable.shop6);
-                }
-
-                if (iShop%7==6) {
-                    ((SViewHolder)viewHolder).imgLogo.setImageResource(R.drawable.shop7);
-                }
+            if (position%7==0) {
+                ((SViewHolder)viewHolder).ivLogo.setImageDrawable(ContextCompat
+                                                .getDrawable(ShopListActivity.this, R.drawable.shop1));
+                return;
             }
 
+            if (position%7==1) {
+                ((SViewHolder)viewHolder).ivLogo.setImageDrawable(ContextCompat
+                                                .getDrawable(ShopListActivity.this, R.drawable.shop2));
+                return;
+            }
+
+            if (position%7==2) {
+                ((SViewHolder)viewHolder).ivLogo.setImageDrawable(ContextCompat
+                                                .getDrawable(ShopListActivity.this, R.drawable.shop3));
+                return;
+            }
+
+            if (position%7==3) {
+                ((SViewHolder)viewHolder).ivLogo.setImageDrawable(ContextCompat
+                                                .getDrawable(ShopListActivity.this, R.drawable.shop4));
+                return;
+            }
+
+            if (position%7==4) {
+                ((SViewHolder)viewHolder).ivLogo.setImageDrawable(ContextCompat
+                                                .getDrawable(ShopListActivity.this, R.drawable.shop5));
+                return;
+            }
+
+            if (position%7==5) {
+                ((SViewHolder)viewHolder).ivLogo.setImageDrawable(ContextCompat
+                                                .getDrawable(ShopListActivity.this, R.drawable.shop6));
+                return;
+            }
+
+            if (position%7==6) {
+                ((SViewHolder)viewHolder).ivLogo.setImageDrawable(ContextCompat
+                                                .getDrawable(ShopListActivity.this, R.drawable.shop7));
+            }
         }
 
         @Override
         public int getItemCount() {
-            return SingletonData.getInstance().getShopLength();
+            return DataBase.getInstance().getShopLength();
         }
 
-        //is also compatible with recyclerView
         class SViewHolder extends ViewHolder {
-            TextView textView;
-            TextView tvSub;
-            TextView tvDistance;
-            ImageView imgLogo;
+            TextView tvName     = null;
+            TextView tvSub      = null;
+            TextView tvDistance = null;
+            ImageView ivLogo    = null;
             public SViewHolder(View v) {
                 super(v);//設定子view
-                textView = (TextView)v.findViewById(R.id.textView2);
-                tvSub = (TextView)v.findViewById(R.id.tvSub);
+                tvName     = (TextView)v.findViewById(R.id.textView2);
+                tvSub      = (TextView)v.findViewById(R.id.tvSub);
                 tvDistance = (TextView)v.findViewById(R.id.tvDistance);
-                imgLogo = (ImageView)v.findViewById(R.id.imgLogo);
+                ivLogo     = (ImageView)v.findViewById(R.id.imgLogo);
             }
         }
     }
@@ -237,17 +258,20 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
         public void handleData(String strResponse) {
             try {
                 JSONObject joShop = new JSONObject(strResponse);
+
                 if (joShop.optString(BRANCH).equals("null")) {
+                    handler.sendEmptyMessage(2);
+                    return;
+                }
+
+                JSONArray jaShopArray = joShop.getJSONArray(BRANCH);
+                DataBase.getInstance().setShop(jaShopArray);
+
+                if (jaShopArray.length() < LIMIT) {
                     handler.sendEmptyMessage(1);
                     return;
                 }
-                JSONArray jaShopArray = joShop.getJSONArray(BRANCH);
 
-                if (jaShopArray.length() < 30) {
-                    handler.sendEmptyMessage(1);
-
-                }
-                SingletonData.getInstance().setBranch(jaShopArray);
                 handler.sendEmptyMessage(0);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -261,11 +285,31 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            m_ListViewAdapter.notifyDataSetChanged();
-            m_bIsDownload = false;
-            setProgressBar();
+
+            //normal download
+            if (msg.what == 0) {
+                m_ListViewAdapter.notifyDataSetChanged();
+                m_bIsDownload = false;
+                setProgressBar();
+                return;
+            }
+
+            //no more download
             if (msg.what == 1) {
-                Toast.makeText(getApplicationContext(), getString(R.string.last),
+                m_ListViewAdapter.notifyDataSetChanged();
+                m_bIsDownload = false;
+                setProgressBar();
+                Toast.makeText(getApplicationContext(),getString(R.string.last),
+                               Toast.LENGTH_LONG).show();
+                m_bIsDownload = true;
+                return;
+            }
+
+            //empty
+            if (msg.what == 2) {
+                m_bIsDownload = false;
+                setProgressBar();
+                Toast.makeText(getApplicationContext(),getString(R.string.last),
                         Toast.LENGTH_LONG).show();
                 m_bIsDownload = true;
             }
@@ -276,83 +320,79 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
         m_bIsDownload = true;
         setProgressBar();
         SHttpDownload sHttpDownload = new SHttpDownload();
-        double dLon = 0;
-        double dLat = 0;
+        //default location Taipei 101
+        double dLon = DEF_LON;
+        double dLat = DEF_LAT;
 
-        //get location here
-        if (SingletonData.getInstance().getLocation() != null) {
-            dLon = SingletonData.getInstance().getLocation().getLongitude();
-            dLat = SingletonData.getInstance().getLocation().getLatitude();
+        //get my location here
+        if (DataBase.getInstance().getLocation() != null) {
+            dLon = DataBase.getInstance().getLocation().getLongitude();
+            dLat = DataBase.getInstance().getLocation().getLatitude();
         }
 
         //httpGet的方法，解析UTF-8 string檔的結構
         sHttpDownload.append(AppData.SERVER_URL)
-                       .append(AppData.APP_ID)
-                       .append("119871")
-                       .append(AppData.DATA_GROUP_CODE)
-                       .append(m_strGroupCode)
-                       .append(AppData.INDEX)
-                       .append(String.valueOf(m_iDownload))
-                       .append(AppData.LIMIT)
-                       .append(String.valueOf(LIMIT))
-                       .append(AppData.OS).append("ANDROID")
-                       .append(AppData.OS_VERSION)
-                       .append(Build.VERSION.RELEASE)
-                       .append(AppData.LAT)
-                       .append(String.valueOf(dLat))
-                       .append(AppData.LON)
-                       .append(String.valueOf(dLon));
+                     .append(AppData.APP_ID)
+                     .append(APPID)
+                     .append(AppData.DATA_GROUP_CODE)
+                     .append(m_strGroupCode)
+                     .append(AppData.INDEX)
+                     .append(String.valueOf(m_iDownload))
+                     .append(AppData.LIMIT)
+                     .append(String.valueOf(LIMIT))
+                     .append(AppData.OS).append(ANDROID)
+                     .append(AppData.OS_VERSION)
+                     .append(Build.VERSION.RELEASE)
+                     .append(AppData.LAT)
+                     .append(String.valueOf(dLat))
+                     .append(AppData.LON)
+                     .append(String.valueOf(dLon));
 
         new Thread(sHttpDownload).start();
 
-        m_iDownload = m_iDownload +30;
+        m_iDownload = m_iDownload+LIMIT;
         Utility.log("download" + m_iDownload);
     }
 
     private void getLocation() {
         LocationManager locationManager = SystemService.getLocationManager(this);
 
-        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true) {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                    MINTIME,
-                    MINDISTANCE,
-                    this);
+                                                   MINTIME,
+                                                   MINDISTANCE,
+                                                   this);
 
             return;
         }
 
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) == true) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    MINTIME,
-                    MINDISTANCE,
-                    this);
+                                                   MINTIME,
+                                                   MINDISTANCE,
+                                                   this);
 
             return;
         }
-        downloadData();//就算空值也可以跑
+
+        downloadData();
     }
 
     private void setView() {
-        m_viewLoading = findViewById(R.id.progressBar);
-        m_viewLoading.setVisibility(View.INVISIBLE);
-        ListView listView = (ListView) findViewById(R.id.listView);
+        m_pbLoading = (ProgressBar)findViewById(R.id.progressBar);
+        m_pbLoading.setVisibility(View.INVISIBLE);
+        ListView lvShop = (ListView)findViewById(R.id.listView);
         m_ListViewAdapter = new SAdapter();
-        listView.setAdapter(m_ListViewAdapter);
-        listView.setOnScrollListener(this);
-        listView.setOnItemClickListener(this);
+        lvShop.setAdapter(m_ListViewAdapter);
+        lvShop.setOnScrollListener(this);
+        lvShop.setOnItemClickListener(this);
     }
 
     private void setProgressBar() {
         if (m_bIsDownload == true) {
-            m_viewLoading.setVisibility(View.VISIBLE);
-        }else {
-            m_viewLoading.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private void setLogo() {
-        if (SingletonData.getInstance().getCurrentShopPosition()%7==0) {
-
+            m_pbLoading.setVisibility(View.VISIBLE);
+        } else {
+            m_pbLoading.setVisibility(View.INVISIBLE);
         }
     }
 }
