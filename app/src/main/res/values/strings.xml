@@ -9,6 +9,7 @@
     <string name="title_activity_event_list">EventListActivity</string>
     <string name="ask">再按一下退出</string>
     <string name="last">資料到底</string>
+    <string name="no_data">無資料</string>
     <string name="title_activity_map">MapActivity</string>
     <string name="title_activity_good_context">GoodContextActivity</string>
     <string name="event_web">活動網址</string>

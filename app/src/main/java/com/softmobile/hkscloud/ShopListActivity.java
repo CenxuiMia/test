@@ -124,7 +124,9 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
     }
 
     @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+    public void onScroll(AbsListView view, int firstVisibleItem,
+                                           int visibleItemCount,
+                                           int totalItemCount) {
 
         if (m_bIsDownload == true) {
             return;
@@ -309,7 +311,7 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
             if (msg.what == 2) {
                 m_bIsDownload = false;
                 setProgressBar();
-                Toast.makeText(getApplicationContext(),getString(R.string.last),
+                Toast.makeText(getApplicationContext(),getString(R.string.no_data),
                         Toast.LENGTH_LONG).show();
                 m_bIsDownload = true;
             }
