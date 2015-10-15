@@ -1,5 +1,6 @@
 package com.softmobile.hkscloud;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -23,6 +25,9 @@ import java.util.ArrayList;
 import HksData.DataBase;
 
 public class MapActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final double DEF_LAT = 25.033938;
+    private static final double DEF_LON = 121.564673;
+
     private GoogleMap m_Map               = null;
     private ArrayList<Marker> m_alMarkers = null;
     private double m_dbSize               = 0;
@@ -97,6 +102,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     }
 
+
     private void setView() {
         m_Map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                 .getMap();
@@ -126,6 +132,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     }
 
     private void setUpMap() {
+
         LatLng latLng = new LatLng(Double.valueOf(DataBase.getInstance().getCurrentShop().getLat())
                 ,Double.valueOf(DataBase.getInstance().getCurrentShop().getLon()));
 
@@ -170,11 +177,29 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             }
         }
 
-        m_Map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        m_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(DataBase.getInstance().getLocation().getLatitude(),
-                           DataBase.getInstance().getLocation().getLongitude()),
-                CameraZoom.getZoom((int) (m_dbSize * 1000))));
+        double dLat = DEF_LAT;
+        double dLon = DEF_LON;
+
+        //沒定位則用預設位置，顯示circle
+        if (DataBase.getInstance().getLocation() != null) {
+            dLat = DataBase.getInstance().getLocation().getLatitude();
+            dLon = DataBase.getInstance().getLocation().getLongitude();
+        } else {
+            m_Map.addCircle(new CircleOptions().center(new LatLng(dLat,dLon))
+                            .strokeColor(Color.BLUE).radius(120).strokeWidth(3)
+                            .fillColor(Color.parseColor("#500084d3")));
+        }
+
+        m_Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(dLat, dLon),
+                         CameraZoom.getZoom((int)(m_dbSize * 1000))));
+
+        m_Map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                m_Map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(DEF_LAT,DEF_LON)));
+                return false;
+            }
+        });
         Utility.log("camera"+ m_dbSize);
 
     }

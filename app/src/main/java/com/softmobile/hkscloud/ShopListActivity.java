@@ -311,7 +311,7 @@ public class ShopListActivity extends AppCompatActivity implements LocationListe
             if (msg.what == 2) {
                 m_bIsDownload = false;
                 setProgressBar();
-                Toast.makeText(getApplicationContext(),getString(R.string.no_data),
+                Toast.makeText(getApplicationContext(),getString(R.string.last),
                         Toast.LENGTH_LONG).show();
                 m_bIsDownload = true;
             }
